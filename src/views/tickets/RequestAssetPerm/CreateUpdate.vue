@@ -168,9 +168,11 @@ export default {
     // Clone: Copy Params
     const applicantId = this.$route.params.clone_from
     if (applicantId) {
-      const columns = this.fields.flatMap(item => item[1])
+      const extraColumns = ['apply_nodes', 'apply_assets']
+      const columns = this.fields.flatMap(item => item[1]).filter(item => !extraColumns.includes(item))
       this.$axios['get'](`/api/v1/tickets/apply-asset-tickets/${applicantId}/`).then(response => {
         columns.map(c => this.initial[c] = response[c])
+        extraColumns.map(c => this.initial[c] = response[c].map(i => i.id))
         this.initial.title = this.$t('common.cloneFrom') + this.initial.title
         this.loading = false
       })

@@ -25,10 +25,10 @@
 </template>
 
 <script>
-import { IBox } from '@/components'
+import {IBox} from '@/components'
 import AutoDetailCard from '@/components/Cards/DetailCard/auto'
 import AutoDataZTree from '@/components/Tree/AutoDataZTree'
-import { toSafeLocalDateStr } from '@/utils/common'
+import {toSafeLocalDateStr} from '@/utils/common'
 
 export default {
   name: 'RolePerms',
@@ -94,6 +94,7 @@ export default {
           'applications.match_application', 'rbac.view_workbench'
         ],
         'tickets.view_ticketflow': ['tickets.view_ticket'],
+        'tickets.add_ticketflow': ['tickets.view_ticket'],
         'users.add_user': ['rbac.view_role'],
         'users.change_user': ['rbac.view_role'],
         'users.invite_user': [
