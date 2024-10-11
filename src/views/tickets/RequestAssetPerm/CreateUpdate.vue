@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import { GenericCreateUpdatePage } from '@/layout/components'
+import {GenericCreateUpdatePage} from '@/layout/components'
 import AccountFormatter from '@/views/perms/AssetPermission/components/AccountFormatter'
 import Select2 from '@/components/Form/FormFields/Select2'
-import { getDaysFuture } from '@/utils/common'
-import { mapGetters, mapState } from 'vuex'
+import {getDaysFuture} from '@/utils/common'
+import {mapGetters, mapState} from 'vuex'
 import store from '@/store'
 
 export default {
@@ -165,7 +165,20 @@ export default {
       this.initial.org_id = userAllOrgIds[0]
     }
 
-    this.loading = false
+    // Clone: Copy Params
+    const applicantId = this.$route.params.clone_from
+    if (applicantId) {
+      const extraColumns = ['apply_nodes', 'apply_assets']
+      const columns = this.fields.flatMap(item => item[1]).filter(item => !extraColumns.includes(item))
+      this.$axios['get'](`/api/v1/tickets/apply-asset-tickets/${applicantId}/`).then(response => {
+        columns.map(c => this.initial[c] = response[c])
+        extraColumns.map(c => this.initial[c] = response[c].map(i => i.id))
+        this.initial.title = this.$t('common.cloneFrom') + this.initial.title
+        this.loading = false
+      })
+    } else {
+      this.loading = false
+    }
   },
   methods: {
     performSubmit(validValues) {
