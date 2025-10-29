@@ -81,7 +81,7 @@ export default {
         },
         {
           label: this.$t('common.Version'),
-          value: 'v3.10.13C'
+          value: 'v3.10.21C'
         },
         {
           label: this.$t('common.PermissionCompany'),
