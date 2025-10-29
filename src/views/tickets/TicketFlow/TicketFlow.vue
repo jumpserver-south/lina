@@ -3,8 +3,9 @@
 </template>
 
 <script>
-import { GenericListPage } from '@/layout/components'
-import { DetailFormatter } from '@/components/Table/TableFormatters'
+import {GenericListPage} from '@/layout/components'
+import {DetailFormatter} from '@/components/Table/TableFormatters'
+import orgUtil from '@/utils/org'
 
 export default {
   name: 'TicketFlow',
@@ -16,11 +17,11 @@ export default {
     return {
       tableConfig: {
         url: '/api/v1/tickets/flows/',
-        columnsExclude: ['rules'],
+        columnsExclude: ['rules', 'users'],
         columnsShow: {
-          min: ['type', 'actions'],
+          min: ['name', 'priority', 'type', 'actions'],
           default: [
-            'type', 'created_by', 'org_name',
+            'name', 'priority', 'type', 'created_by', 'org_name',
             'date_created', 'date_updated', 'actions'
           ]
         },
@@ -44,24 +45,35 @@ export default {
           actions: {
             prop: 'actions',
             formatterArgs: {
-              hasClone: false,
-              hasDelete: false,
+              hasUpdate: true,
+              hasClone: true,
+              hasDelete: true,
               onClone: ({ row }) => {
-                vm.$router.push({ name: 'TicketFlowUpdate', query: { type: row.type, clone_from: row.id }})
+                vm.$router.push({ name: 'TicketFlowCreate', query: { clone_from: row.id }})
               },
-              canUpdate: () => {
-                return vm.$hasPerm('tickets.change_ticketflow')
+              canClone: () => {
+                return vm.$hasPerm('tickets.add_ticketflow')
+              },
+              canUpdate: ({ row }) => {
+                return vm.$hasPerm('tickets.change_ticketflow') && row.org_id !== orgUtil.GLOBAL_ORG_ID
               },
               onUpdate: ({ row }) => {
                 vm.$router.push({ name: 'TicketFlowUpdate', params: { id: row.id }})
+              },
+              canDelete: ({ row }) => {
+                return vm.$hasPerm('tickets.delete_ticketflow') && !(row.internal && row.org_id === orgUtil.GLOBAL_ORG_ID)
               }
             }
           }
         }
       },
       headerActions: {
-        hasLeftActions: false,
-        hasSearch: false
+        createRoute: 'TicketFlowCreate',
+        canCreate: () => this.$hasPerm('tickets.add_ticketflow'),
+        hasRefresh: true,
+        hasExport: false,
+        hasImport: false,
+        hasMoreActions: false
       }
     }
   }
