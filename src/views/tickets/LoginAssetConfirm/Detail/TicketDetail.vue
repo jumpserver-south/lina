@@ -30,7 +30,7 @@ export default {
   computed: {
     specialCardItems() {
       const { object } = this
-      return object.type === 'login_confirm' ? [] : [
+      const items = object.type === 'login_confirm' ? [] : [
         {
           key: this.$t('ApplyLoginAsset'),
           value: object.apply_login_asset?.name
@@ -44,6 +44,12 @@ export default {
           value: object.apply_login_user.name
         }
       ]
+      if (object.apply_reason) {
+        items.push({ key: this.$t('ApplyReason'), value: object.apply_reason })
+        items.push({ key: this.$t('OperationContent'), value: object.apply_operation_content })
+        items.push({ key: this.$t('OperationDuration'), value: object.apply_operation_duration })
+      }
+      return items
     }
   },
   methods: {}
