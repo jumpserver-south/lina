@@ -1,12 +1,15 @@
 <template>
-  <div class="filter-field">
-    <el-cascader
-      v-show="options.length > 0"
-      ref="Cascade"
-      :options="options"
-      :props="config"
-      @change="handleMenuItemChange"
-    />
+  <div :class="{ 'has-options': options.length > 0 }" class="filter-field">
+    <div v-show="options.length > 0" class="filter-cascader-wrap">
+      <el-cascader
+        ref="Cascade"
+        class="filter-cascader jms-input-spacing"
+        :options="options"
+        :props="config"
+        @change="handleMenuItemChange"
+      />
+    </div>
+
     <el-tag
       v-for="(v, k) in filterTags"
       :key="k"
@@ -23,11 +26,13 @@
       <span v-if="v.valueLabel">{{ v.valueLabel }}</span>
       <span v-else>{{ v.value }}</span>
     </el-tag>
-    <span v-if="keyLabel" slot="prefix" class="filterTitle">{{ keyLabel + ':' }}</span>
+
+    <span v-if="keyLabel" class="filter-title">{{ keyLabel + ':' }}</span>
+
     <el-input
       ref="SearchInput"
       v-model="filterValue"
-      class="search-input"
+      class="search-input jms-input-spacing"
       :class="options.length > 0 ? '' : 'no-options'"
       :placeholder="placeholder"
       :suffix-icon="suffixIcon"
@@ -35,8 +40,8 @@
       @blur="handleBlur"
       @change="handleConfirm"
       @focus="handleFocus"
-      @keyup.enter.native="handleConfirm"
-      @keyup.delete.native="handleDelete"
+      @keyup.enter="handleConfirm"
+      @keyup.delete="handleDelete"
     />
     <span :class="isFocus ? 'is-focus ' : ''" class="keydown-focus">/</span>
   </div>
@@ -150,14 +155,14 @@ export default {
   mounted() {
     document.addEventListener('keyup', this.handleKeyUp)
   },
-  beforeDestroy() {
+  beforeUnmount() {
     document.removeEventListener('keyup', this.handleKeyUp)
   },
   methods: {
     handleFocus() {
       this.focus = true
       this.isFocus = true
-      this.suffixIcon = 'el-icon-search'
+      this.suffixIcon = 'Search'
     },
     handleBlur() {
       this.focus = false
@@ -168,7 +173,7 @@ export default {
     // 获取url中的查询条件，判断是不是包含在当前查询条件里
     checkInTableColumns(options) {
       const searchFieldOptions = {}
-      const queryInfoValues = options.map(i => i.value)
+      const queryInfoValues = options.map((i) => i.value)
       const routeQuery = this.getUrlQuery ? this.$route?.query : {}
       const routeQueryKeysLength = Object.keys(routeQuery).length
       if (routeQueryKeysLength < 1) return searchFieldOptions
@@ -282,7 +287,7 @@ export default {
       this.$nextTick(() => this.$refs.Cascade.handleClear())
     },
     handleTagClose(evt) {
-      this.$delete(this.filterTags, evt)
+      delete this.filterTags[evt]
       if (this.getUrlQuery) {
         this.checkUrlFields(evt)
       }
@@ -317,7 +322,7 @@ export default {
         value: this.filterValue,
         valueLabel: this.valueLabel
       }
-      this.$set(this.filterTags, this.filterKey, tag)
+      this.filterTags[this.filterKey] = tag
       // this.$emit('tagSearch', this.filterMaps)
 
       // 修改查询参数时改变url中保存的参数
@@ -360,18 +365,27 @@ export default {
         this.handleConfirm()
       }
 
-      this.$delete(this.filterTags, k)
+      delete this.filterTags[k]
 
       this.filterKey = v.key
       this.filterValue = v.value
       this.$refs.SearchInput.focus()
     },
     handleKeyUp(event) {
+      // 如果当前有输入框聚焦，不触发搜索
+      const activeElement = event.target
+      const isInputFocused =
+        activeElement &&
+        (activeElement.tagName === 'INPUT' ||
+          activeElement.tagName === 'TEXTAREA' ||
+          activeElement.contentEditable === 'true')
+      if (isInputFocused) return
+
       // 当目标对象为一个 length 为 0 的伪数组时表明此时是在全局情况下调用
       // 若存在遮罩层等组件在调用时，其 length 将会为 1
       if (event.target.classList.length === 0 && event.key === '/') {
         this.$refs.SearchInput.focus()
-        this.suffixIcon = 'el-icon-search'
+        this.suffixIcon = 'Search'
         this.isFocus = true
       }
     },
@@ -401,32 +415,59 @@ $origin-white-color: #ffffff;
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 210px;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
   background-color: $origin-white-color;
 
-  .el-cascader {
-    height: 28px;
-    line-height: 28px;
-
-    ::v-deep .el-input.el-input--suffix {
-      .el-input__inner {
-        width: 0;
-        height: 28px;
-        padding-right: 20px;
-        border: none;
-      }
-    }
-
-    ::v-deep .el-input__suffix {
-      color: var(--color-icon-primary) !important;
-
-      .el-input__suffix-inner .el-input__icon {
-        line-height: 30px;
-      }
-    }
+  &.has-options {
+    padding-left: 20px;
   }
 
-  .filterTitle {
+  :deep(.filter-cascader) {
+    width: 20px;
+    height: 28px;
+    line-height: 28px;
+  }
+
+  :deep(.filter-cascader > .el-input) {
+    width: 20px;
+    height: 28px;
+  }
+
+  :deep(.filter-cascader > .el-input > .el-input__wrapper) {
+    width: 20px;
+    min-width: 20px;
+    height: 28px;
+    flex: 0 0 20px;
+    border: none;
+    box-shadow: unset;
+  }
+
+  :deep(.filter-cascader > .el-input > .el-input__wrapper > .el-input__inner) {
+    display: none;
+  }
+
+  :deep(.filter-cascader > .el-input > .el-input__wrapper > .el-input__suffix) {
+    width: 20px;
+    color: var(--color-icon-primary) !important;
+    justify-content: center;
+  }
+
+  :deep(.filter-cascader .el-input__suffix-inner) {
+    width: 100%;
+  }
+
+  :deep(.filter-cascader .el-input__suffix-inner > .el-input__icon) {
+    width: 20px;
+    margin-inline-start: 0;
+    line-height: 28px;
+  }
+
+  .filter-title {
     padding-right: 2px;
     line-height: 100%;
     text-align: center;
@@ -440,28 +481,49 @@ $origin-white-color: #ffffff;
   }
 
   .filter-tag {
+    min-width: 0;
+    max-width: calc(100% - 4px);
     margin: 2px 4px 2px 0;
+
+    :deep(.el-tag__content) {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   .search-input {
+    --jms-input-padding-inline: 11px;
+    --jms-input-padding-inline-start: 1px;
+
+    flex: 1 1 120px;
+    width: auto;
+    min-width: 120px;
+    max-width: 100%;
     height: 28px;
 
-    ::v-deep .el-input__suffix {
-      cursor: pointer;
+    :deep(.el-input__wrapper) {
+      width: 100%;
+      max-width: none;
+      box-shadow: unset;
 
-      i {
-        line-height: 30px;
-        font-weight: 500;
-        color: var(--color-icon-primary);
+      .el-input__inner {
+        height: 28px;
+        font-size: 13px;
+        box-shadow: unset;
+        border: none;
       }
-    }
 
-    ::v-deep .el-input__inner {
-      height: 28px;
-      max-width: 200px;
-      border: none;
-      padding-left: 1px;
-      font-size: 13px;
+      .el-input__suffix {
+        cursor: pointer;
+
+        i {
+          line-height: 30px;
+          font-weight: 500;
+          color: var(--color-icon-primary);
+        }
+      }
     }
 
     &.no-options {
@@ -472,6 +534,7 @@ $origin-white-color: #ffffff;
   .keydown-focus {
     position: absolute;
     right: 0;
+    bottom: 5px;
     display: inline-block;
     margin-right: 10px;
     padding: 3px 5px;
@@ -489,8 +552,15 @@ $origin-white-color: #ffffff;
   }
 }
 
-.search-input2 ::v-deep .el-input__inner {
-  text-indent: 5px;
+.filter-cascader-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 20px;
+  height: 28px;
+  --jms-input-padding-block: 1px;
+  --jms-input-padding-inline: 0;
 }
 
 .el-icon--right {
