@@ -1,11 +1,18 @@
 <template>
-  <GenericCreateUpdatePage :fields="fields" :fields-meta="fieldsMeta" :initial="initial" :url="url" />
+  <GenericCreateUpdatePage
+    :fields="fields"
+    :fields-meta="fieldsMeta"
+    :initial="initial"
+    :on-submit="onSubmit"
+    :url="url"
+  />
 </template>
 
 <script>
 import GenericCreateUpdatePage from '@/layout/components/GenericCreateUpdatePage'
 import AssetSelect from '@/components/Apps/AssetSelect'
 import { TextReadonly } from '@/components/Form/FormFields'
+import { confirmZoneOverwrite } from './utils'
 
 export default {
   name: 'GatewayCreateUpdate',
@@ -13,6 +20,7 @@ export default {
     GenericCreateUpdatePage
   },
   data() {
+    const vm = this
     return {
       initial: {},
       fields: [
@@ -39,7 +47,13 @@ export default {
           }
         }
       },
-      url: '/api/v1/assets/zones/'
+      url: '/api/v1/assets/zones/',
+      onSubmit: async function(validValues, formName, addContinue) {
+        const confirmed = await confirmZoneOverwrite(vm, validValues.assets || [])
+        if (confirmed) {
+          this.defaultOnSubmit(validValues, formName, addContinue)
+        }
+      }
     }
   }
 }

@@ -20,7 +20,9 @@
     "Other": "Other",
     "Details": "Details",
     "Confirm": "Confirm",
+    "Cancel": "Cancel",
     "Ignore": "Ignore",
     "Please enter a reason": "Please enter a reason",
-    "PleaseEnterReason": "Please enter a reason | Please enter reasons"
+    "PleaseEnterReason": "Please enter a reason | Please enter reasons",
+    "AssetsInOtherZonesConfirm": "The following assets already belong to other zones: {assets}. Continuing will update their zones. Do you want to continue?"
 }

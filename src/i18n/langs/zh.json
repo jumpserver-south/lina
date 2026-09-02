@@ -20,5 +20,7 @@
     "Other": "其他",
     "Details": "详情",
     "Confirm": "确认",
-    "Ignore": "忽略"
+    "Cancel": "取消",
+    "Ignore": "忽略",
+    "AssetsInOtherZonesConfirm": "以下资产已存在于其他网域中：{assets}。确认后将更新其网域，是否继续？"
 }

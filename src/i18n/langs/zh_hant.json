@@ -8,5 +8,8 @@
     "notAlphanumericUnderscore": "仅支持字母、数字和下划线。",
     "notParenthesis": "不能包含括号。",
     "InvalidJson": "JSON 格式错误.",
-    "requiredHasUserNameMapped": "用户名属性是必需的。"
+    "requiredHasUserNameMapped": "用户名属性是必需的。",
+    "Confirm": "確認",
+    "Cancel": "取消",
+    "AssetsInOtherZonesConfirm": "以下資產已存在於其他網域中：{assets}。確認後將更新其網域，是否繼續？"
 }
